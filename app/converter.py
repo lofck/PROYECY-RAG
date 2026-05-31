@@ -6,6 +6,14 @@ from docx import Document
 INPUT_DIR = "DATA/processed"
 OUTPUT_DIR = "DATA/vault"
 
+# Lista de archivos corruptos a ignorar automáticamente
+ARCHIVOS_CORRUPTOS = [
+    "e6b1e_Convenio de Budapest .pdf",  # Con espacio al final
+    "e6b1e_Convenio de Budapest.pdf",   # Pegado
+    "Convenio de Budapest .pdf",        # Con espacio al final
+    "Convenio de Budapest.pdf"          # Pegado
+]
+
 def convert_to_markdown():
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
@@ -13,6 +21,11 @@ def convert_to_markdown():
     print(f"--- Iniciando conversión a Markdown (NIST 800-218) ---")
 
     for filename in os.listdir(INPUT_DIR):
+        # Filtro de seguridad: si el archivo está en la lista negra, lo saltea de una
+        if filename in ARCHIVOS_CORRUPTOS:
+            print(f"⚠️ LOG NIST: '{filename}' omitido. Motivo: Archivo corrupto de origen (ToUnicode roto).")
+            continue
+
         file_path = os.path.join(INPUT_DIR, filename)
         base_name = os.path.splitext(filename)[0]
         output_path = os.path.join(OUTPUT_DIR, f"{base_name}.md")
